@@ -1,16 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+type Task = {
+  text: string;
+  done: boolean;
+};
 
 export default function TasksBox() {
   const [task, setTask] = useState("");
-  const [tasks, setTasks] = useState<string[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("friday-tasks");
+
+    if (saved) {
+      setTasks(JSON.parse(saved));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("friday-tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = () => {
     if (!task.trim()) return;
 
-    setTasks((prev) => [...prev, task]);
+    setTasks((prev) => [...prev, { text: task, done: false }]);
     setTask("");
+  };
+
+  const toggleTask = (index: number) => {
+    setTasks((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, done: !item.done } : item
+      )
+    );
+  };
+
+  const deleteTask = (index: number) => {
+    setTasks((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -36,12 +65,28 @@ export default function TasksBox() {
 
       <div className="mt-4 space-y-2">
         {tasks.map((item, index) => (
-          <p
+          <div
             key={index}
-            className="rounded-lg bg-gray-900 p-3 text-sm text-gray-300"
+            className="flex items-center justify-between rounded-lg bg-gray-900 p-3 text-sm"
           >
-            {item}
-          </p>
+            <p
+              onClick={() => toggleTask(index)}
+              className={`cursor-pointer ${
+                item.done
+                  ? "text-gray-500 line-through"
+                  : "text-gray-300"
+              }`}
+            >
+              {item.text}
+            </p>
+
+            <button
+              onClick={() => deleteTask(index)}
+              className="text-red-400"
+            >
+              Delete
+            </button>
+          </div>
         ))}
       </div>
     </div>

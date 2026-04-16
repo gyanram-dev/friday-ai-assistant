@@ -1,8 +1,43 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import ChatBox from "../features/chat/ChatBox";
 import TasksBox from "../features/tasks/TasksBox";
 
+type Task = {
+  text: string;
+  done: boolean;
+};
+
 export default function Home() {
+  const [tasksCount, setTasksCount] = useState(0);
+
+  useEffect(() => {
+    const loadTasks = () => {
+      const saved = localStorage.getItem("friday-tasks");
+
+      if (saved) {
+        const tasks: Task[] = JSON.parse(saved);
+        const pending = tasks.filter((task) => !task.done).length;
+        setTasksCount(pending);
+      } else {
+        setTasksCount(0);
+      }
+    };
+
+    loadTasks();
+
+    window.addEventListener("storage", loadTasks);
+
+    const interval = setInterval(loadTasks, 500);
+
+    return () => {
+      window.removeEventListener("storage", loadTasks);
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <main className="min-h-screen bg-black text-white">
       <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
@@ -34,7 +69,7 @@ export default function Home() {
           <div className="grid gap-4 md:grid-cols-3">
             <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
               <p className="text-sm text-gray-400">Tasks Today</p>
-              <h3 className="mt-2 text-2xl font-bold">5</h3>
+              <h3 className="mt-2 text-2xl font-bold">{tasksCount}</h3>
             </div>
 
             <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
