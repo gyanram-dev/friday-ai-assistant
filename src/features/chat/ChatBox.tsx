@@ -1,20 +1,61 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+
+type MemoryType = {
+  identity: string[];
+  goals: string[];
+  preferences: string[];
+  projects: string[];
+  priorities: string[];
+};
 
 export default function ChatBox() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
+  const [memory, setMemory] = useState<MemoryType>({
+    identity: [],
+    goals: [],
+    preferences: [],
+    projects: [],
+    priorities: [],
+  });
   const [loading, setLoading] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const savedChat = localStorage.getItem("friday-chat");
+    const savedMemory = localStorage.getItem("friday-memory-v2");
+
+    if (savedChat) setMessages(JSON.parse(savedChat));
+    if (savedMemory) setMemory(JSON.parse(savedMemory));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "friday-chat",
+      JSON.stringify(messages)
+    );
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "friday-memory-v2",
+      JSON.stringify(memory)
+    );
+  }, [memory]);
 
   const handleSend = async () => {
     if (!message.trim() || loading) return;
 
     const userMessage = message;
 
-    setMessages((prev) => [...prev, `You: ${userMessage}`]);
+    setMessages((prev) => [
+      ...prev,
+      `You: ${userMessage}`,
+    ]);
+
     setMessage("");
     setLoading(true);
 
@@ -26,10 +67,15 @@ export default function ChatBox() {
         },
         body: JSON.stringify({
           message: userMessage,
+          memory,
         }),
       });
 
       const data = await res.json();
+
+      if (data.updatedMemory) {
+        setMemory(data.updatedMemory);
+      }
 
       setMessages((prev) => [
         ...prev,
@@ -54,22 +100,18 @@ export default function ChatBox() {
   return (
     <div className="w-full max-w-xl rounded-2xl border border-gray-700 bg-gray-950 p-4 shadow-lg">
       <div className="mb-4 max-h-80 space-y-2 overflow-y-auto">
-        {messages.map((msg, index) => {
-          const isUser = msg.startsWith("You:");
-
-          return (
-            <p
-              key={index}
-              className={`rounded-lg p-3 text-sm ${
-                isUser
-                  ? "ml-12 bg-white text-black"
-                  : "mr-12 bg-gray-900 text-gray-300"
-              }`}
-            >
-              {msg}
-            </p>
-          );
-        })}
+        {messages.map((msg, index) => (
+          <p
+            key={index}
+            className={`rounded-lg p-3 text-sm ${
+              msg.startsWith("You:")
+                ? "ml-12 bg-white text-black"
+                : "mr-12 bg-gray-900 text-gray-300"
+            }`}
+          >
+            {msg}
+          </p>
+        ))}
 
         {loading && (
           <p className="mr-12 rounded-lg bg-gray-900 p-3 text-sm text-gray-400">
@@ -82,13 +124,12 @@ export default function ChatBox() {
 
       <div className="flex gap-2">
         <input
-          type="text"
-          placeholder="Ask FRIDAY anything..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) =>
             e.key === "Enter" && handleSend()
           }
+          placeholder="Ask FRIDAY..."
           className="flex-1 rounded-lg bg-gray-900 p-3 text-white outline-none"
         />
 
