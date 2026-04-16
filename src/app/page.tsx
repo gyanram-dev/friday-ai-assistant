@@ -1,5 +1,6 @@
 import Hero from "../components/Hero";
 import ChatBox from "../features/chat/ChatBox";
+import TasksBox from "../features/tasks/TasksBox";
 
 export default function Home() {
   return (
@@ -47,9 +48,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col items-center justify-center">
+          <div className="mt-8 flex flex-col items-center">
             <Hero />
             <ChatBox />
+            <TasksBox />
           </div>
         </section>
       </div>
