@@ -18,6 +18,8 @@ type Job = {
 };
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState("Dashboard");
+
   const [tasksCount, setTasksCount] = useState(0);
   const [applications, setApplications] = useState(0);
   const [interviews, setInterviews] = useState(0);
@@ -55,9 +57,10 @@ export default function Home() {
     loadData();
 
     const interval = setInterval(loadData, 500);
-
     return () => clearInterval(interval);
   }, []);
+
+  const menu = ["Dashboard", "Chat", "Tasks", "Jobs"];
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -67,11 +70,19 @@ export default function Home() {
           <p className="mt-2 text-sm text-gray-400">Control Center</p>
 
           <nav className="mt-8 space-y-3 text-sm">
-            <p className="rounded-lg bg-gray-900 px-4 py-3">Dashboard</p>
-            <p className="rounded-lg px-4 py-3 text-gray-400">Chat</p>
-            <p className="rounded-lg px-4 py-3 text-gray-400">Tasks</p>
-            <p className="rounded-lg px-4 py-3 text-gray-400">Jobs</p>
-            <p className="rounded-lg px-4 py-3 text-gray-400">Settings</p>
+            {menu.map((item) => (
+              <button
+                key={item}
+                onClick={() => setActiveTab(item)}
+                className={`w-full rounded-lg px-4 py-3 text-left ${
+                  activeTab === item
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-400"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </nav>
         </aside>
 
@@ -87,34 +98,39 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
-              <p className="text-sm text-gray-400">Tasks Today</p>
-              <h3 className="mt-2 text-2xl font-bold">{tasksCount}</h3>
-            </div>
+          {activeTab === "Dashboard" && (
+            <>
+              <div className="grid gap-4 md:grid-cols-4">
+                <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
+                  <p className="text-sm text-gray-400">Tasks Today</p>
+                  <h3 className="mt-2 text-2xl font-bold">{tasksCount}</h3>
+                </div>
 
-            <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
-              <p className="text-sm text-gray-400">Applications</p>
-              <h3 className="mt-2 text-2xl font-bold">{applications}</h3>
-            </div>
+                <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
+                  <p className="text-sm text-gray-400">Applications</p>
+                  <h3 className="mt-2 text-2xl font-bold">{applications}</h3>
+                </div>
 
-            <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
-              <p className="text-sm text-gray-400">Interviews</p>
-              <h3 className="mt-2 text-2xl font-bold">{interviews}</h3>
-            </div>
+                <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
+                  <p className="text-sm text-gray-400">Interviews</p>
+                  <h3 className="mt-2 text-2xl font-bold">{interviews}</h3>
+                </div>
 
-            <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
-              <p className="text-sm text-gray-400">Offers</p>
-              <h3 className="mt-2 text-2xl font-bold">{offers}</h3>
-            </div>
-          </div>
+                <div className="rounded-2xl border border-gray-800 bg-gray-950 p-4">
+                  <p className="text-sm text-gray-400">Offers</p>
+                  <h3 className="mt-2 text-2xl font-bold">{offers}</h3>
+                </div>
+              </div>
 
-          <div className="mt-8 flex flex-col items-center">
-            <Hero />
-            <ChatBox />
-            <TasksBox />
-            <JobsBox />
-          </div>
+              <div className="mt-8 flex flex-col items-center">
+                <Hero />
+              </div>
+            </>
+          )}
+
+          {activeTab === "Chat" && <ChatBox />}
+          {activeTab === "Tasks" && <TasksBox />}
+          {activeTab === "Jobs" && <JobsBox />}
         </section>
       </div>
     </main>
