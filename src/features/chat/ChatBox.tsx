@@ -1,41 +1,59 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function ChatBox() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  const handleSend = () => {
-  if (!message.trim()) return;
+  const handleSend = async () => {
+    if (!message.trim() || loading) return;
 
-  const userMessage = message;
-  let fridayReply = `Hello boss. You said "${userMessage}"`;
+    const userMessage = message;
 
-  if (userMessage.toLowerCase().includes("study")) {
-    fridayReply = "Boss, focus for 45 minutes now. Start with hardest topic first.";
-  } else if (userMessage.toLowerCase().includes("job")) {
-    fridayReply = "Boss, update resume this week and apply daily to internships.";
-  } else if (userMessage.toLowerCase().includes("hello")) {
-    fridayReply = "Hello boss. FRIDAY online and ready.";
-  }
+    setMessages((prev) => [...prev, `You: ${userMessage}`]);
+    setMessage("");
+    setLoading(true);
 
-  setMessages((prev) => [
-    ...prev,
-    `You: ${userMessage}`,
-    `FRIDAY: ${fridayReply}`,
-  ]);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+        }),
+      });
 
-  setMessage("");
-};
+      const data = await res.json();
+
+      setMessages((prev) => [
+        ...prev,
+        `FRIDAY: ${data.reply}`,
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        "FRIDAY: Boss, connection error.",
+      ]);
+    }
+
+    setLoading(false);
+  };
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages, loading]);
 
   return (
-    <div className="mt-6 w-full max-w-xl rounded-2xl border border-gray-700 bg-gray-950 p-4 shadow-lg">
-      <div className="mb-4 max-h-64 space-y-2 overflow-y-auto">
+    <div className="w-full max-w-xl rounded-2xl border border-gray-700 bg-gray-950 p-4 shadow-lg">
+      <div className="mb-4 max-h-80 space-y-2 overflow-y-auto">
         {messages.map((msg, index) => {
           const isUser = msg.startsWith("You:");
 
@@ -53,6 +71,12 @@ export default function ChatBox() {
           );
         })}
 
+        {loading && (
+          <p className="mr-12 rounded-lg bg-gray-900 p-3 text-sm text-gray-400">
+            FRIDAY is thinking...
+          </p>
+        )}
+
         <div ref={bottomRef}></div>
       </div>
 
@@ -62,7 +86,9 @@ export default function ChatBox() {
           placeholder="Ask FRIDAY anything..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) =>
+            e.key === "Enter" && handleSend()
+          }
           className="flex-1 rounded-lg bg-gray-900 p-3 text-white outline-none"
         />
 
