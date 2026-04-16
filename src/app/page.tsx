@@ -5,6 +5,7 @@ import Hero from "../components/Hero";
 import ChatBox from "../features/chat/ChatBox";
 import TasksBox from "../features/tasks/TasksBox";
 import JobsBox from "../features/jobs/JobsBox";
+import StudyBox from "../features/study/StudyBox";
 
 type Task = {
   text: string;
@@ -60,7 +61,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  const menu = ["Dashboard", "Chat", "Tasks", "Jobs"];
+  const menu = [
+    "Dashboard",
+    "Chat",
+    "Tasks",
+    "Jobs",
+    "Study",
+  ];
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -131,6 +138,7 @@ export default function Home() {
           {activeTab === "Chat" && <ChatBox />}
           {activeTab === "Tasks" && <TasksBox />}
           {activeTab === "Jobs" && <JobsBox />}
+          {activeTab === "Study" && <StudyBox />}
         </section>
       </div>
     </main>
