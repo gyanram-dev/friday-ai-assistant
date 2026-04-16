@@ -8,6 +8,8 @@ type Job = {
   status: string;
 };
 
+const statuses = ["Applied", "Interview", "Rejected", "Offer"];
+
 export default function JobsBox() {
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
@@ -15,10 +17,7 @@ export default function JobsBox() {
 
   useEffect(() => {
     const saved = localStorage.getItem("friday-jobs");
-
-    if (saved) {
-      setJobs(JSON.parse(saved));
-    }
+    if (saved) setJobs(JSON.parse(saved));
   }, []);
 
   useEffect(() => {
@@ -35,6 +34,14 @@ export default function JobsBox() {
 
     setCompany("");
     setRole("");
+  };
+
+  const updateStatus = (index: number, value: string) => {
+    setJobs((prev) =>
+      prev.map((job, i) =>
+        i === index ? { ...job, status: value } : job
+      )
+    );
   };
 
   const deleteJob = (index: number) => {
@@ -76,8 +83,19 @@ export default function JobsBox() {
           >
             <p className="font-semibold">{job.company}</p>
             <p className="text-gray-400">{job.role}</p>
-            <div className="mt-2 flex items-center justify-between">
-              <span className="text-blue-400">{job.status}</span>
+
+            <div className="mt-2 flex items-center justify-between gap-2">
+              <select
+                value={job.status}
+                onChange={(e) =>
+                  updateStatus(index, e.target.value)
+                }
+                className="rounded-lg bg-black px-3 py-2 text-sm text-white outline-none"
+              >
+                {statuses.map((status) => (
+                  <option key={status}>{status}</option>
+                ))}
+              </select>
 
               <button
                 onClick={() => deleteJob(index)}
