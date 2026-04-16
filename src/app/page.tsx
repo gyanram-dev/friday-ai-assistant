@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import ChatBox from "../features/chat/ChatBox";
 import TasksBox from "../features/tasks/TasksBox";
+import JobsBox from "../features/jobs/JobsBox";
 
 type Task = {
   text: string;
@@ -28,14 +29,9 @@ export default function Home() {
 
     loadTasks();
 
-    window.addEventListener("storage", loadTasks);
-
     const interval = setInterval(loadTasks, 500);
 
-    return () => {
-      window.removeEventListener("storage", loadTasks);
-      clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -87,6 +83,7 @@ export default function Home() {
             <Hero />
             <ChatBox />
             <TasksBox />
+            <JobsBox />
           </div>
         </section>
       </div>
