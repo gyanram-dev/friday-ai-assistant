@@ -10,15 +10,16 @@ type Job = {
 
 const statuses = ["Applied", "Interview", "Rejected", "Offer"];
 
+const loadJobs = (): Job[] => {
+  if (typeof window === "undefined") return [];
+  const saved = localStorage.getItem("friday-jobs");
+  return saved ? JSON.parse(saved) : [];
+};
+
 export default function JobsBox() {
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
-  const [jobs, setJobs] = useState<Job[]>([]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("friday-jobs");
-    if (saved) setJobs(JSON.parse(saved));
-  }, []);
+  const [jobs, setJobs] = useState<Job[]>(loadJobs);
 
   useEffect(() => {
     localStorage.setItem("friday-jobs", JSON.stringify(jobs));

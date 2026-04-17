@@ -7,17 +7,15 @@ type Task = {
   done: boolean;
 };
 
+const loadTasks = (): Task[] => {
+  if (typeof window === "undefined") return [];
+  const saved = localStorage.getItem("friday-tasks");
+  return saved ? JSON.parse(saved) : [];
+};
+
 export default function TasksBox() {
   const [task, setTask] = useState("");
-  const [tasks, setTasks] = useState<Task[]>([]);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("friday-tasks");
-
-    if (saved) {
-      setTasks(JSON.parse(saved));
-    }
-  }, []);
+  const [tasks, setTasks] = useState<Task[]>(loadTasks);
 
   useEffect(() => {
     localStorage.setItem("friday-tasks", JSON.stringify(tasks));
@@ -25,7 +23,6 @@ export default function TasksBox() {
 
   const addTask = () => {
     if (!task.trim()) return;
-
     setTasks((prev) => [...prev, { text: task, done: false }]);
     setTask("");
   };
