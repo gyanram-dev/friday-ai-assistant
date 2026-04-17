@@ -72,7 +72,8 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
       <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
-        <aside className="border-r border-gray-800 p-6">
+
+        <aside className="relative z-50 border-r border-gray-800 p-6">
           <h2 className="text-xl font-bold">FRIDAY</h2>
           <p className="mt-2 text-sm text-gray-400">Control Center</p>
 
@@ -81,10 +82,10 @@ export default function Home() {
               <button
                 key={item}
                 onClick={() => setActiveTab(item)}
-                className={`w-full rounded-lg px-4 py-3 text-left ${
+                className={`w-full rounded-lg px-4 py-3 text-left transition ${
                   activeTab === item
                     ? "bg-gray-900 text-white"
-                    : "text-gray-400"
+                    : "text-gray-400 hover:bg-gray-900 hover:text-white"
                 }`}
               >
                 {item}
@@ -93,7 +94,7 @@ export default function Home() {
           </nav>
         </aside>
 
-        <section className="p-6">
+        <section className="relative z-10 p-6">
           <div className="mb-6 flex items-center justify-between rounded-2xl border border-gray-800 bg-gray-950 px-5 py-4">
             <div>
               <p className="text-sm text-gray-400">Welcome back</p>
@@ -140,6 +141,7 @@ export default function Home() {
           {activeTab === "Jobs" && <JobsBox />}
           {activeTab === "Study" && <StudyBox />}
         </section>
+
       </div>
     </main>
   );
